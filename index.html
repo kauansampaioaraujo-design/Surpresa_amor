@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nossa História ❤️</title>
+  <style>
+    :root {
+      --rosa: #ff477e;
+      --rosa-claro: #ff8fab;
+      --fundo-1: #590d22;
+      --fundo-2: #a4133c;
+      --texto: #fff0f3;
+      --vidro: rgba(255, 255, 255, 0.13);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--texto);
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #c9184a 0%, transparent 38%),
+        linear-gradient(145deg, var(--fundo-2), var(--fundo-1));
+    }
+    button,
+    input {
+      font: inherit;
+    }
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 24px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--rosa), #c9184a);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+    }
+    .page {
+      display: none;
+      min-height: 100vh;
+      padding: 32px 20px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .page.active {
+      display: flex;
+      animation: appear 0.7s ease;
+    }
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .card {
+      width: min(920px, 100%);
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 28px;
+      background: var(--vidro);
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(15px);
+    }
+    .small-card {
+      max-width: 520px;
+    }
+    h1,
+    h2 {
+      margin-top: 0;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    h1 {
+      font-size: clamp(2.3rem, 8vw, 5rem);
+    }
+    h2 {
+      font-size: clamp(1.9rem, 6vw, 3.4rem);
+    }
+    .subtitle {
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    .password-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 25px;
+    }
+    #password {
+      width: 170px;
+      padding: 14px;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      outline: none;
+      text-align: center;
+      color: #590d22;
+      font-size: 1.1rem;
+    }
+    #password:focus {
+      border-color: var(--rosa-claro);
+    }
+    #passwordMessage {
+      min-height: 24px;
+      color: #ffd6e0;
+      font-weight: bold;
+    }
+    .hint {
+      font-size: 0.85rem;
+      opacity: 0.65;
+    }
+    
+    /* ESTILOS DOS QUEBRA-CABEÇAS */
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      width: min(78vw, 480px);
+      aspect-ratio: 1;
+      margin: 25px auto;
+      overflow: hidden;
+      border: 5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+    }
+    .piece {
+      position: relative;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 0;
+      background-repeat: no-repeat;
+      background-size: 300% 300%;
+      box-shadow: none;
+      transition: filter 0.2s, transform 0.2s;
+    }
+    /* Imagem do Puzzle 1 */
+    .piece-img1 { background-image: url("foto.jpeg"); }
+    /* Imagem do Puzzle 2 */
+    .piece-img2 { background-image: url("foto2.jpg"); }
+
+    .piece:hover {
+      z-index: 2;
+      filter: brightness(1.15);
+      transform: scale(1.03);
+    }
+    .piece.selected {
+      z-index: 3;
+      outline: 4px solid #ffd166;
+      filter: brightness(1.2);
+    }
+    .piece.solved {
+      border-color: transparent;
+      pointer-events: none;
+    }
+    .puzzleStatus {
+      min-height: 25px;
+      font-weight: bold;
+    }
+
+    /* CARTA */
+    .letter {
+      max-width: 700px;
+      margin: 25px auto;
+      padding: clamp(24px, 5vw, 45px);
+      border-radius: 8px;
+      color: #5c2434;
+      text-align: left;
+      line-height: 1.85;
+      background: #fff8f0;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: rotate(-0.5deg);
+    }
+    .letter h2 {
+      color: #a4133c;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .signature {
+      margin-top: 30px;
+      text-align: right;
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+      font-style: italic;
+    }
+    .spotify-frame {
+      width: min(100%, 700px);
+      height: 152px;
+      margin: 20px auto;
+      border: 0;
+      border-radius: 14px;
+    }
+
+    /* NOVO CONTADOR ESTÉTICO (Inspirado na imagem) */
+    .aesthetic-counter {
+      background: #fff5f7; /* Fundo rosa bem claro */
+      color: #590d22;
+      border-radius: 20px;
+      padding: 40px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Decoração floral suave no fundo do contador */
+    .aesthetic-counter::before {
+      content: "🌸 🌺 🌸 🌺 🌸";
+      position: absolute;
+      font-size: 120px;
+      opacity: 0.08;
+      top: -30px;
+      left: -20px;
+      pointer-events: none;
+      letter-spacing: 20px;
+      filter: blur(2px);
+    }
+    .aesthetic-counter::after {
+      content: "🌸 🌺 🌸 🌺";
+      position: absolute;
+      font-size: 100px;
+      opacity: 0.08;
+      bottom: -30px;
+      right: -20px;
+      pointer-events: none;
+      letter-spacing: 30px;
+      filter: blur(2px);
+    }
+    .counter-title {
+      font-family: Georgia, serif;
+      font-size: 1.6rem;
+      color: #7a5c61;
+      margin-bottom: 30px;
+      font-weight: normal;
+      position: relative;
+      z-index: 2;
+    }
+    .counter-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+    .counter-box {
+      background: white;
+      border-radius: 12px;
+      padding: 15px 10px;
+      min-width: 85px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .counter-number {
+      display: block;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: bold;
+      color: #b82e5c; /* Vermelho/rosa escuro igual à foto */
+    }
+    .counter-label {
+      display: block;
+      font-size: 0.65rem;
+      color: #888;
+      text-transform: uppercase;
+      margin-top: 5px;
+      letter-spacing: 1px;
+    }
+    .counter-footer-text {
+      font-family: Georgia, serif;
+      font-style: italic;
+      color: #7a5c61;
+      font-size: 1rem;
+      line-height: 1.5;
+      max-width: 85%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Efeitos */
+    .flower {
+      position: fixed;
+      z-index: 9999;
+      top: -60px;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      0% {
+        transform: translate3d(0, -10vh, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--drift), 115vh, 0) rotate(720deg);
+        opacity: 0.9;
+      }
+    }
+    .heart {
+      display: inline-block;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      50% { transform: scale(1.18); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 560px) {
+      .password-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      #password,
+      .password-row button { width: 100%; }
+      .page { padding: 20px 12px; }
+      
+      .counter-boxes { gap: 8px; }
+      .counter-box { min-width: 65px; padding: 12px 5px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela da senha -->
+  <section id="loginPage" class="page active">
+    <div class="card small-card">
+      <div style="font-size: 4rem;">🔐</div>
+      <h1>Uma surpresa para você</h1>
+      <p class="subtitle">
+        Existe uma data que abriu as portas para a melhor parte da minha vida.
+      </p>
+      <div class="password-row">
+        <input
+          id="password"
+          type="text"
+          inputmode="numeric"
+          maxlength="5"
+          placeholder="DD/MM"
+          autocomplete="off"
+          aria-label="Digite a nossa data"
+        >
+        <button id="unlockButton" type="button">
+          Abrir meu coração
+        </button>
+      </div>
+      <p id="passwordMessage"></p>
+      <p class="hint">Dica: o dia em que a nossa história começou.</p>
+    </div>
+  </section>
+
+  <!-- Tela do Quebra-cabeça 1 -->
+  <section id="puzzle1Page" class="page">
+    <div class="card">
+      <h2>Monte uma lembrança nossa 🧩</h2>
+      <p class="subtitle">
+        Toque em duas peças para trocar suas posições.
+      </p>
+      <div id="puzzle1" class="puzzle-grid" aria-label="Primeiro Quebra-cabeça"></div>
+      <p id="puzzleStatus1" class="puzzleStatus">Encontre o lugar de cada pedacinho...</p>
+      <button id="shuffleButton1" type="button">Embaralhar novamente</button>
+    </div>
+  </section>
+
+  <!-- Tela do Quebra-cabeça 2 -->
+  <section id="puzzle2Page" class="page">
+    <div class="card">
+      <h2>Mais uma memória especial 🧩</h2>
+      <p class="subtitle">
+        Você mandou bem! Agora monte mais este momento antes da surpresa principal.
+      </p>
+      <div id="puzzle2" class="puzzle-grid" aria-label="Segundo Quebra-cabeça"></div>
+      <p id="puzzleStatus2" class="puzzleStatus">Continue montando nossa história...</p>
+      <button id="shuffleButton2" type="button">Embaralhar novamente</button>
+    </div>
+  </section>
+
+  <!-- Carta e músicas -->
+  <section id="letterPage" class="page">
+    <div class="card">
+      <h1><span class="heart">❤️</span> Para a minha princesa</h1>
+      <article class="letter">
+        <h2>De mim, para você</h2>
+        
+        <p>Minha princesa,</p>
+        
+        <p>Eu poderia tentar explicar o que você se tornou pra mim em mil palavras, mas talvez nem todas fossem suficientes.<br>
+        Então eu tentei fazer de outro jeito.</p>
+        
+        <p>Criei isso porque queria que existisse alguma coisa que fosse só nossa. Algo que você pudesse abrir e, por alguns minutos, enxergar através dos meus olhos o tamanho do amor que eu sinto por você.</p>
+        
+        <p>Engraçado pensar que tudo começou lá em Fernandes né… um morango, uma conversa, um café no pôr do sol, uma flor, e uma pinha (pegou a ref?). Uma ligação que deveria durar pouco e acabou atravessando a madrugada. E, quando eu percebi, você já estava em todos os lugares de mim.</p>
+        
+        <p>No meu celular.<br>
+        Na minha playlist.<br>
+        Nas minhas orações.<br>
+        Nos meus planos.<br>
+        Nos meus pensamentos quando quero comer só um lanche, mas lembro de você.<br>
+        No sorriso que aparece sozinho quando alguém fala de você.</p>
+        
+        <p>Você entrou na minha vida e, de algum jeito, fez tudo ganhar mais cor.</p>
+        
+        <p>E eu sei que você tem medo.<br>
+        Sei que às vezes sua cabeça cria mil finais antes mesmo da nossa história chegar naquela parte. Sei que existem dias em que a insegurança fala mais alto e tenta te convencer de que isso não vai dar certo.</p>
+        
+        <p>Mas, amor…<br>
+        Eu não quero amar você só enquanto for fácil.<br>
+        Porque eu não me apaixonei somente pela fase bonita que estamos vivendo.<br>
+        Eu me apaixonei por você.</p>
+        
+        <p>Pela sua risada.<br>
+        Pelo seu cheiro que ficou no meu pensamento.<br>
+        Pelo seu abraço que parece colocar tudo no lugar.<br>
+        Pelo seu jeito de cuidar de mim sem perceber.<br>
+        Pelas suas inseguranças também, porque até nelas eu consigo enxergar a mulher que merece ser lembrada todos os dias do quanto é incrível.</p>
+        
+        <p>E talvez seja isso que eu mais queria que você entenda:<br>
+        Você não precisa ser perfeita para ser amada por mim.<br>
+        Você só precisa ser você.<br>
+        Aquela menina que me fez querer chamar de princesa todos os dias.<br>
+        Aquela mulher que eu admiro.<br>
+        Aquela pessoa que, em tão pouco tempo, conseguiu ocupar um espaço em mim que eu nem sabia que existia.</p>
+        
+        <p>Igual a música "Aquela Pessoa":<br>
+        <em>"Todo mundo tem uma pessoa, aquela pessoa; Não precisa dia e nem hora pra chegar; Na portaria do meu coração já tem seu nome; Pode entrar."</em></p>
+        
+        <p>E se eu pudesse programar uma única coisa para o resto da minha vida, seria simples:<br>
+        Te escolher.<br>
+        De novo.<br>
+        E de novo.<br>
+        E de novo.</p>
+        
+        <p>Nos dias bons.<br>
+        Nos dias difíceis.<br>
+        Nos começos.<br>
+        Nos recomeços.<br>
+        Na distância.<br>
+        Na saudade.<br>
+        No abraço depois de dias sem se ver.</p>
+        
+        <p>Eu escolheria você em todas as versões da nossa história.<br>
+        Porque se existe alguma coisa que eu tenho certeza nesse meio de tanta coisa que ainda estamos descobrindo, é que amar você foi uma das coisas mais bonitas que já aconteceu comigo.</p>
+        
+        <p>Então abre essa programação e lembra:<br>
+        Por trás de cada linha, cada detalhe e cada pedacinho disso, existe um homem completamente apaixonado por você.<br>
+        E esse homem sou eu.</p>
+        
+        <p>Te amo, minha princesa.<br>
+        Mais do que consigo escrever.<br>
+        Mais do que consigo explicar.</p>
+        
+        <p>E, sinceramente?<br>
+        Ainda bem que você apareceu. ❤️🍓</p>
+
+        <p class="signature">
+          Com todo o meu amor,<br>
+          Kauan ❤️
+        </p>
+      </article>
+
+      <h2>Nossas músicas 🎵</h2>
+      <p class="subtitle">
+        Algumas músicas que sempre me fazem lembrar de nós.
+      </p>
+      
+      <iframe
+        class="spotify-frame"
+        src="https://open.spotify.com/embed/playlist/1Rpyjy8K3jlXHFPZyF9dr3"
+        loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        title="Playlist do Spotify"
+      ></iframe>
+      
+      <button id="counterButton" type="button" style="margin-top: 15px;">
+        Ver o nosso tempo de amor
+      </button>
+    </div>
+  </section>
+
+  <!-- Contador Novo Estilo -->
+  <section id="counterPage" class="page">
+    <div class="card" style="background: transparent; border: none; box-shadow: none;">
+      <div class="aesthetic-counter">
+        <h2 class="counter-title">cada segundo com você 🤍</h2>
+        
+        <div class="counter-boxes">
+          <div class="counter-box">
+            <span id="days" class="counter-number">0</span>
+            <span class="counter-label">Dias</span>
+          </div>
+          <div class="counter-box">
+            <span id="hours" class="counter-number">00</span>
+            <span class="counter-label">Horas</span>
+          </div>
+          <div class="counter-box">
+            <span id="minutes" class="counter-number">00</span>
+            <span class="counter-label">Minutos</span>
+          </div>
+          <div class="counter-box">
+            <span id="seconds" class="counter-number">00</span>
+            <span class="counter-label">Segundos</span>
+          </div>
+        </div>
+        
+        <p class="counter-footer-text">
+          Esse é o tempo que eu tenho te amado, e eu nunca me arrependi de um único segundo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // DATA DO INÍCIO DO NAMORO
+    const RELATIONSHIP_START = new Date(2026, 6, 17, 0, 0, 0);
+    const PASSWORD = "17/07";
+    const PUZZLE_SIZE = 3;
+
+    // Elementos da Senha
+    const passwordInput = document.getElementById("password");
+    const passwordMessage = document.getElementById("passwordMessage");
+
+    function showPage(pageId) {
+      document.querySelectorAll(".page").forEach((page) => {
+        page.classList.remove("active");
+      });
+      document.getElementById(pageId).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Lógica da Senha
+    function formatPassword(value) {
+      const digits = value.replace(/\D/g, "").slice(0, 4);
+      if (digits.length <= 2) return digits;
+      return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+
+    passwordInput.addEventListener("input", () => {
+      passwordInput.value = formatPassword(passwordInput.value);
+      passwordMessage.textContent = "";
+    });
+
+    passwordInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") verifyPassword();
+    });
+
+    document.getElementById("unlockButton").addEventListener("click", verifyPassword);
+
+    function verifyPassword() {
+      if (passwordInput.value.trim() !== PASSWORD) {
+        passwordMessage.textContent = "Ainda não... pense na data em que tudo começou ❤️";
+        passwordInput.animate(
+          [
+            { transform: "translateX(0)" },
+            { transform: "translateX(-8px)" },
+            { transform: "translateX(8px)" },
+            { transform: "translateX(0)" }
+          ], { duration: 300 }
+        );
+        return;
+      }
+
+      passwordMessage.textContent = "Você abriu o meu coração! ❤️";
+      createFlowerRain();
+
+      setTimeout(() => {
+        createPuzzle1();
+        showPage("puzzle1Page");
+      }, 1800);
+    }
+
+    // Efeito de Flores
+    function createFlowerRain() {
+      const flowers = ["🌹", "🌸", "🌷", "🌺", "💐", "🌻"];
+      for (let index = 0; index < 75; index += 1) {
+        setTimeout(() => {
+          const flower = document.createElement("span");
+          flower.className = "flower";
+          flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+          flower.style.left = `${Math.random() * 100}vw`;
+          flower.style.fontSize = `${18 + Math.random() * 28}px`;
+          flower.style.animationDuration = `${3 + Math.random() * 4}s`;
+          flower.style.setProperty("--drift", `${-120 + Math.random() * 240}px`);
+          document.body.appendChild(flower);
+
+          setTimeout(() => { flower.remove(); }, 7500);
+        }, index * 45);
+      }
+    }
+
+    // Lógica compartilhada para os quebra-cabeças
+    function shuffledNumbers() {
+      const numbers = Array.from({ length: PUZZLE_SIZE * PUZZLE_SIZE }, (_, i) => i);
+      do {
+        for (let i = numbers.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+      } while (numbers.every((num, i) => num === i));
+      return numbers;
+    }
+
+    // --- PUZZLE 1 ---
+    let puzzle1Order = [];
+    let selectedPiece1 = null;
+    let puzzle1Solved = false;
+    const puzzle1El = document.getElementById("puzzle1");
+    const status1El = document.getElementById("puzzleStatus1");
+    const shuffleBtn1 = document.getElementById("shuffleButton1");
+
+    function createPuzzle1() {
+      puzzle1Solved = false;
+      selectedPiece1 = null;
+      puzzle1Order = shuffledNumbers();
+      shuffleBtn1.disabled = false;
+      renderPuzzle1();
+    }
+
+    function renderPuzzle1() {
+      puzzle1El.innerHTML = "";
+      puzzle1Order.forEach((origPos, currPos) => {
+        const row = Math.floor(origPos / PUZZLE_SIZE);
+        const col = origPos % PUZZLE_SIZE;
+        const piece = document.createElement("button");
+        piece.type = "button";
+        piece.className = "piece piece-img1"; // CLASSE DA FOTO 1
+        piece.dataset.pos = currPos;
+        piece.style.backgroundPosition = `${(col * 100) / (PUZZLE_SIZE - 1)}% ${(row * 100) / (PUZZLE_SIZE - 1)}%`;
+        piece.addEventListener("click", selectPiece1);
+        puzzle1El.appendChild(piece);
+      });
+    }
+
+    function selectPiece1(e) {
+      if (puzzle1Solved) return;
+      const clicked = Number(e.currentTarget.dataset.pos);
+
+      if (selectedPiece1 === null) {
+        selectedPiece1 = clicked;
+        e.currentTarget.classList.add("selected");
+        status1El.textContent = "Agora escolha a peça que deseja trocar.";
+        return;
+      }
+
+      if (selectedPiece1 === clicked) {
+        e.currentTarget.classList.remove("selected");
+        selectedPiece1 = null;
+        status1El.textContent = "Escolha duas peças para trocar de lugar.";
+        return;
+      }
+
+      [puzzle1Order[selectedPiece1], puzzle1Order[clicked]] = [puzzle1Order[clicked], puzzle1Order[selectedPiece1]];
+      selectedPiece1 = null;
+      renderPuzzle1();
+      checkPuzzle1();
+    }
+
+    function checkPuzzle1() {
+      const isSolved = puzzle1Order.every((orig, curr) => orig === curr);
+      if (!isSolved) {
+        status1El.textContent = "Está ficando lindo... continue ❤️";
+        return;
+      }
+
+      puzzle1Solved = true;
+      shuffleBtn1.disabled = true;
+      status1El.textContent = "Perfeito! Vamos para a próxima... ❤️";
+      
+      document.querySelectorAll("#puzzle1 .piece").forEach(p => p.classList.add("solved"));
+      createFlowerRain();
+
+      setTimeout(() => {
+        createPuzzle2();
+        showPage("puzzle2Page");
+      }, 2500);
+    }
+    shuffleBtn1.addEventListener("click", createPuzzle1);
+
+
+    // --- PUZZLE 2 ---
+    let puzzle2Order = [];
+    let selectedPiece2 = null;
+    let puzzle2Solved = false;
+    const puzzle2El = document.getElementById("puzzle2");
+    const status2El = document.getElementById("puzzleStatus2");
+    const shuffleBtn2 = document.getElementById("shuffleButton2");
+
+    function createPuzzle2() {
+      puzzle2Solved = false;
+      selectedPiece2 = null;
+      puzzle2Order = shuffledNumbers();
+      shuffleBtn2.disabled = false;
+      renderPuzzle2();
+    }
+
+    function renderPuzzle2() {
+      puzzle2El.innerHTML = "";
+      puzzle2Order.forEach((origPos, currPos) => {
+        const row = Math.floor(origPos / PUZZLE_SIZE);
+        const col = origPos % PUZZLE_SIZE;
+        const piece = document.createElement("button");
+        piece.type = "button";
+        piece.className = "piece piece-img2"; // CLASSE DA FOTO 2
+        piece.dataset.pos = currPos;
+        piece.style.backgroundPosition = `${(col * 100) / (PUZZLE_SIZE - 1)}% ${(row * 100) / (PUZZLE_SIZE - 1)}%`;
+        piece.addEventListener("click", selectPiece2);
+        puzzle2El.appendChild(piece);
+      });
+    }
+
+    function selectPiece2(e) {
+      if (puzzle2Solved) return;
+      const clicked = Number(e.currentTarget.dataset.pos);
+
+      if (selectedPiece2 === null) {
+        selectedPiece2 = clicked;
+        e.currentTarget.classList.add("selected");
+        status2El.textContent = "Agora escolha a peça que deseja trocar.";
+        return;
+      }
+
+      if (selectedPiece2 === clicked) {
+        e.currentTarget.classList.remove("selected");
+        selectedPiece2 = null;
+        status2El.textContent = "Escolha duas peças para trocar de lugar.";
+        return;
+      }
+
+      [puzzle2Order[selectedPiece2], puzzle2Order[clicked]] = [puzzle2Order[clicked], puzzle2Order[selectedPiece2]];
+      selectedPiece2 = null;
+      renderPuzzle2();
+      checkPuzzle2();
+    }
+
+    function checkPuzzle2() {
+      const isSolved = puzzle2Order.every((orig, curr) => orig === curr);
+      if (!isSolved) {
+        status2El.textContent = "Quase lá... continue! ❤️";
+        return;
+      }
+
+      puzzle2Solved = true;
+      shuffleBtn2.disabled = true;
+      status2El.textContent = "Você completou nossas lembranças! ❤️";
+      
+      document.querySelectorAll("#puzzle2 .piece").forEach(p => p.classList.add("solved"));
+      createFlowerRain();
+
+      setTimeout(() => {
+        showPage("letterPage");
+      }, 2500);
+    }
+    shuffleBtn2.addEventListener("click", createPuzzle2);
+
+
+    // --- LÓGICA DO CONTADOR ---
+    document.getElementById("counterButton").addEventListener("click", () => {
+      showPage("counterPage");
+      updateCounter();
+    });
+
+    function updateCounter() {
+      const now = new Date();
+      if (now < RELATIONSHIP_START) return;
+
+      const totalMilliseconds = now - RELATIONSHIP_START;
+      
+      // Cálculo de dias totais contínuos
+      const days = Math.floor(totalMilliseconds / 86400000);
+      const hours = Math.floor((totalMilliseconds % 86400000) / 3600000);
+      const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
+      const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
+
+      document.getElementById("days").textContent = days.toLocaleString("pt-BR");
+      document.getElementById("hours").textContent = String(hours).padStart(2, "0");
+      document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
+      document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
+    }
+
+    setInterval(() => {
+      if (document.getElementById("counterPage").classList.contains("active")) {
+        updateCounter();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
